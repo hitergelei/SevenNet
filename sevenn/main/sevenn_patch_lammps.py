@@ -23,11 +23,7 @@ def main(args=None):
     print('Patching LAMMPS with the following settings:')
     print('  - LAMMPS source directory:', lammps_dir)
 
-    cxx_standard = '17' if __version__.startswith('2') else '14'
-    if cxx_standard == '17':
-        print('  - Torch version >= 2.0 detected, use CXX STANDARD 17')
-    else:
-        print('  - Torch version < 2.0 detected, use CXX STANDARD 14')
+    cxx_standard = '17'  # always 17
 
     if args.d3:
         d3_support = '1'

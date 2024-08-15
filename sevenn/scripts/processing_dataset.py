@@ -4,8 +4,8 @@ import random
 import torch
 import torch.distributed as dist
 
-import sevenn._keys as KEY
 import sevenn._const as CONST
+import sevenn._keys as KEY
 from sevenn.sevenn_logger import Logger
 from sevenn.train.dataload import file_to_dataset, match_reader
 from sevenn.train.dataset import AtomGraphDataset
@@ -134,7 +134,7 @@ def handle_shift_scale(config, train_set: AtomGraphDataset, checkpoint_given):
                     scale[modal_map[modal_key]] = modal_scale
                 elif scale_given in CONST.IMPLEMENTED_SCALE:
                     raise NotImplementedError(
-                        'Currently, modal-wise scale implemented for'   
+                        'Currently, modal-wise scale implemented for'
                         'species-dependent case only.'
                     )
 
@@ -301,7 +301,7 @@ def processing_dataset(config, working_dir):
     dataset.group_by_key()  # apply labels inside original datapoint
     dataset.unify_dtypes()  # unify dtypes of all data points
 
-    dataset.toggle_requires_grad_of_data(KEY.POS, True)
+    dataset.toggle_requires_grad_of_data(KEY.EDGE_VEC, True)
 
     # TODO: I think manual chemical species input is redundant
     chem_in_db = dataset.get_species()

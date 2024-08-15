@@ -77,6 +77,7 @@ class SevenNetCalculator(Calculator):
             self.type_map = config[KEY.TYPE_MAP]
             self.cutoff = config[KEY.CUTOFF]
             self.sevennet_config = config
+            self.grad_key = KEY.EDGE_VEC
         elif file_type == 'torchscript':
             extra_dict = {
                 'chemical_symbols_to_index': b'',
@@ -99,6 +100,7 @@ class SevenNetCalculator(Calculator):
                 for i, sym in enumerate(chem_symbols.split())
             }
             self.cutoff = float(extra_dict['cutoff'].decode('utf-8'))
+            self.grad_key = KEY.POS
         else:
             raise ValueError('Unknown file type')
 
@@ -122,7 +124,7 @@ class SevenNetCalculator(Calculator):
     ):
         # call parent class to set necessary atom attributes
         Calculator.calculate(self, atoms, properties, system_changes)
-        data = sevenn.util.unlabeled_atoms_to_input(atoms, self.cutoff)
+        data = sevenn.util.unlabeled_atoms_to_input(atoms, self.cutoff, self.grad_key)
 
         data[KEY.NODE_FEATURE] = torch.LongTensor(
             [self.type_map[z.item()] for z in data[KEY.NODE_FEATURE]]

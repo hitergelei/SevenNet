@@ -106,7 +106,7 @@ def error_recorder_from_loss_functions(loss_functions):
 
 
 def postprocess_output(
-    output, loss_types, use_weight=False, delete_unlabled=True
+    output, loss_types, use_weight=False, delete_unlabeled=True
 ):
     from sevenn._const import LossType
 
@@ -118,7 +118,7 @@ def postprocess_output(
         output (dict): output from model
         loss_types (list): list of loss types to be calculated
         use_weight (bool): if True, trying to multiply weight to output. Used for training only.
-        delete_unlabled (bool): if True, delete unlabled (i.e. nan) data from reference.
+        delete_unlabeled (bool): if True, delete unlabeled (i.e. nan) data from reference.
 
     Returns:
         results (dict): dictionary of loss type and its corresponding
@@ -157,7 +157,7 @@ def postprocess_output(
             )
             weight_tensor = torch.repeat_interleave(weight_tensor, vdim)
 
-        if delete_unlabled:
+        if delete_unlabeled:
             #  nan in pred might not be deleted, which is natural.
             #  This must be done after multiplying weight.
             unlabeld_idx = torch.isnan(ref)
@@ -288,14 +288,14 @@ def model_from_checkpoint(checkpoint):
     return model, config
 
 
-def unlabeled_atoms_to_input(atoms, cutoff):
+def unlabeled_atoms_to_input(atoms, cutoff, grad_key=KEY.EDGE_VEC):
     from sevenn.atom_graph_data import AtomGraphData
     from sevenn.train.dataload import unlabeled_atoms_to_graph
 
     atom_graph = AtomGraphData.from_numpy_dict(
         unlabeled_atoms_to_graph(atoms, cutoff)
     )
-    atom_graph[KEY.POS].requires_grad_(True)
+    atom_graph[grad_key].requires_grad_(True)
     atom_graph[KEY.BATCH] = torch.zeros([0])
     return atom_graph
 
