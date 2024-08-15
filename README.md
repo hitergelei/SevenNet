@@ -9,6 +9,24 @@ The project provides parallel molecular dynamics simulations using graph neural 
 
 The installation and usage of SevenNet are split into two parts: training + command-line interface + ASE calculator (handled by Python) and molecular dynamics (handled by [`LAMMPS`](https://docs.lammps.org/Manual.html)).
 
+## Features
+ - Pre-trained GNN interatomic potential SevenNet-0, with fine-tuning interface
+ - ASE calculator support
+ - Multi-GPU accelerated molecular dynamics with LAMMPS
+ - D3 dispersion (van der Waals) with LAMMPS (for LAMMPS serial)
+
+Supporting MD frameworks and its features. While all modes support both CPU and GPU, GPU is much faster.
+| Features        | ASE calculator   | LAMMPS serial   | LAMMPS parallel |
+|-----------------|------------------|-----------------|-----------------|
+| Working?        | ✅ | ✅ | ✅ |
+| Multi-GPU       | ❌ | ❌ | ✅ |
+| Stress compute  | ✅ | ✅ | ⏳ |
+| D3 correction   | ⏳ | ✅ | ⏳ |
+
+✅: Support, ⏳: Planned, ❌: Not planned.
+
+
+## Contents
 - [SevenNet](#sevennet)
   - [Installation](#installation)
   - [Usage](#usage)
@@ -16,7 +34,7 @@ The installation and usage of SevenNet are split into two parts: training + comm
     - [SevenNet Calculator for ASE](#sevennet-calculator-for-ase)
     - [Training sevenn](#training)
       - [Multi-GPU training](#multi-gpu-training)
-    - [sevenn_graph build](#sevenn_graph_build)
+    - [sevenn_graph_build](#sevenn_graph_build)
     - [sevenn_inference](#sevenn_inference)
     - [sevenn_get_model](#sevenn_get_model)
   - [Installation for LAMMPS](#installation-for-lammps)
@@ -55,7 +73,9 @@ pip install sevenn
 
 ### SevenNet-0
 
-SevenNet-0 is a general-purpose interatomic potential trained on the [`MPF dataset of M3GNet`](https://figshare.com/articles/dataset/MPF_2021_2_8/19470599) or [`MPtrj dataset of CHGNet`](https://figshare.com/articles/dataset/Materials_Project_Trjectory_MPtrj_Dataset/23713842). You can try SevenNet-0 to your application without any training. If the accuracy is unsatisfactory, SevenNet-0 can be [fine-tuned](#training).
+SevenNet-0 is a general-purpose interatomic potential trained on the [`MPF dataset of M3GNet`](https://figshare.com/articles/dataset/MPF_2021_2_8/19470599) or [`MPtrj dataset of CHGNet`](https://figshare.com/articles/dataset/Materials_Project_Trjectory_MPtrj_Dataset/23713842). 
+
+While SevenNet-0 can be applied to downstream tasks as it is, it is recommended to [`fine-tune`](#training) SevenNet-0 before addressing real downstream tasks.
 
 #### SevenNet-0 (11July2024)
 
@@ -93,12 +113,12 @@ sevenet_cal = SevenNetCalculator(checkpoint_path, device='cpu')
 ### Training
 
 ```bash
-sevenn_preset base > input.yaml
+sevenn_preset fine_tune > input.yaml
 sevenn input.yaml -s
 ```
 
 Other valid preset options are: `base`, `fine_tune`, and `sevennet-0`.
-Check comments of `base` yaml for explanations.
+Check comments in the preset yaml files for explanations. For fine-tuning, note that most model hyperparameters cannot be modified unless explicitly indicated.
 
 To reuse a preprocessed training set, you can specify `${dataset_name}.sevenn_data` to the `load_dataset_path:` in the `input.yaml`.
 
@@ -156,6 +176,7 @@ These models can be used as lammps potential to run parallel MD simulations with
 - (Optional) [`CUDA-aware OpenMPI`](https://www.open-mpi.org/faq/?category=buildcuda) for parallel MD
 - MKL-include
 
+
 **PLEASE NOTE:** CUDA-aware OpenMPI does not support NVIDIA Gaming GPUs. Given that the software is closely tied to hardware specifications, please consult with your server administrator if unavailable.
 
 If your cluster supports the Intel MKL module (often included with Intel OneAPI, Intel Compiler, and other Intel-related modules), load the module. If it is unavailable, read the 'Note for MKL' section before running cmake.
@@ -166,8 +187,10 @@ Ensure the LAMMPS version (stable_2Aug2023_update3). You can easily switch the v
 
 ```bash
 git clone https://github.com/lammps/lammps.git lammps_sevenn --branch stable_2Aug2023_update3 --depth=1
-sevenn_patch_lammps ./lammps_sevenn
+sevenn_patch_lammps ./lammps_sevenn {--d3}
 ```
+
+**Add `--d3` option to install GPU accelerated [Grimme's D3 method](https://doi.org/10.1063/1.3382344) pair style. For its usage and details, click [here](sevenn/pair_e3gnn).**
 
 You can refer to `sevenn/pair_e3gnn/patch_lammps.sh` for the detailed patch process.
 
@@ -181,7 +204,7 @@ cmake ../cmake -DCMAKE_PREFIX_PATH=`python -c 'import torch;print(torch.utils.cm
 make -j4
 ```
 
-If the compilation is successful, you will find the executable at `{path_to_lammps_dir}/build/lmp`. To use this binary easily, for example, create a soft link in your bin directory (which should be included in your $PATH).
+If the compilation is successful, you will find the executable at `{path_to_lammps_dir}/build/lmp`. To use this binary easily, for example, create a soft link in your bin directory (which should be included in your `$PATH`).
 
 ```bash
 ln -s {absolute_path_to_lammps_dir}/build/lmp $HOME/.local/bin/lmp
@@ -257,8 +280,8 @@ One GPU per MPI process is expected. The simulation may run inefficiently if the
 ## Future Works
 
 - Notebook examples and improved interface for non-command line usage
-- Implementation of pressure output in parallel MD simulations.
-- Development of support for a tiled communication style (also known as recursive coordinate bisection, RCB) in LAMMPS.
+- Virial stress output in parallel MD simulations.
+- Development of a tiled communication style (also known as recursive coordinate bisection, RCB) in LAMMPS.
 - Easy use of parallel models
 
 ## Citation
