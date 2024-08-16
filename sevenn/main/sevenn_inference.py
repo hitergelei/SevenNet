@@ -19,9 +19,6 @@ target_help = 'target files to evaluate. '
 def main(args=None):
     checkpoint, target, device, ncores, output, batch, modal, =\
         cmd_parse_data(args)
-    if not os.path.exists(checkpoint):
-        print(f'{checkpoint} does not exist')
-        sys.exit(1)
     if not os.path.exists(output):
         os.makedirs(output)
     if device == 'auto':

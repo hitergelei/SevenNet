@@ -17,6 +17,7 @@ from sevenn.util import (
     AverageNumber,
     model_from_checkpoint,
     postprocess_output,
+    pretrained_name_to_path,
     squared_error,
     to_atom_graph_list,
 )
@@ -184,6 +185,10 @@ def inference_main(
     batch_size=5,
     modal='common',
 ):
+    if os.path.isfile(checkpoint):
+        pass
+    else:
+        checkpoint = pretrained_name_to_path(checkpoint)
     model, config = model_from_checkpoint(checkpoint)
     model.to(device)
     model.set_is_batch_data(True)
