@@ -2,9 +2,7 @@ import argparse
 import os
 import subprocess
 
-from torch import __version__
-
-from sevenn._const import SEVENN_VERSION
+from sevenn import __version__ as sevenn_version
 
 # python wrapper of patch_lammps.sh script
 # importlib.resources is correct way to do these things
@@ -12,7 +10,7 @@ from sevenn._const import SEVENN_VERSION
 pair_e3gnn_dir = os.path.abspath(f'{os.path.dirname(__file__)}/../pair_e3gnn')
 
 description = (
-    f'sevenn version={SEVENN_VERSION}, patch LAMMPS for pair_e3gnn styles'
+    f'sevenn version={sevenn_version}, patch LAMMPS for pair_e3gnn styles'
 )
 
 

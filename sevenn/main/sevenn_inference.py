@@ -4,7 +4,7 @@ import sys
 
 import torch
 
-from sevenn._const import SEVENN_VERSION
+from sevenn import __version__
 from sevenn.scripts.inference import inference_main
 
 description = (
