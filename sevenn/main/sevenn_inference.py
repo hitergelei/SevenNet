@@ -8,7 +8,7 @@ from sevenn import __version__
 from sevenn.scripts.inference import inference_main
 
 description = (
-    f'sevenn version={SEVENN_VERSION}, sevenn_inference. '
+    f'sevenn version={__version__}, sevenn_inference. '
     + 'Evaluate sevenn_data/POSCARs/OUTCARs/ase readable '
     + 'using the model stored in a checkpoint.'
 )
