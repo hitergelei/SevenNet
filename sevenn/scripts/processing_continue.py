@@ -4,11 +4,11 @@ import warnings
 import torch
 
 import sevenn._keys as KEY
+import sevenn.util as util
 from sevenn.scripts.convert_model_modality import (
     append_modality_to_model_dct,
     get_single_modal_model_dct,
 )
-import sevenn.util as util
 from sevenn.sevenn_logger import Logger
 
 
@@ -183,7 +183,10 @@ def convert_modality_of_checkpoint_state_dct(config, state_dicts):
         if config[KEY.USE_MODALITY + '_cp']:  # checkpoint model is multimodal
             # change model state dict to single modal, default = "common"
             model_state_dict_cp = get_single_modal_model_dct(
-                model_state_dict_cp, config, config[KEY.DEFAULT_MODAL], True
+                model_state_dict_cp,
+                config,
+                config[KEY.DEFAULT_MODAL],
+                from_processing_cp=True,
             )
 
     state_dicts = (
