@@ -44,7 +44,11 @@ def main(args=None):
         stct_dct = get_single_modal_model_dct(stct_dct, config, modal, is_deploy=True)
         output_prefix = modal + '_' + output_prefix
         if save_cp:
-            cp_file = torch.load(checkpoint_path, map_location='cpu')
+            cp_file = torch.load(
+                checkpoint_path,
+                map_location='cpu',
+                weights_only=False,
+            )
             cp_file.update({'model_state_dict': stct_dct, 'config': config})
             torch.save(cp_file, checkpoint_path.replace('.', f'_{modal}.'))
 

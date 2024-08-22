@@ -246,7 +246,11 @@ def model_from_checkpoint(checkpoint):
     from sevenn.model_build import build_E3_equivariant_model
 
     if isinstance(checkpoint, str):
-        checkpoint = torch.load(checkpoint, map_location='cpu')
+        checkpoint = torch.load(
+            checkpoint,
+            map_location='cpu',
+            weights_only=False
+        )
     elif isinstance(checkpoint, dict):
         pass
     else:
