@@ -285,7 +285,9 @@ def model_from_checkpoint(checkpoint):
         updated = _map_old_model(model_state_dict)
         missing, not_used = model.load_state_dict(updated, strict=False)
         if len(not_used) > 0:
-            warnings.warn(f'Some keys are not used: {not_used}', UserWarning)
+            pass
+            # TODO: uncomment this before release
+            #warnings.warn(f'Some keys are not used: {not_used}', UserWarning)
 
     assert len(missing) == 0, f'Missing keys: {missing}'
 
